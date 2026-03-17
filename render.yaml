@@ -3,6 +3,7 @@ services:
   - type: web
     name: senatecnologo-backend
     env: python
+    plan: free # 🔥 FORZAMOS PLAN GRATUITO
     buildCommand: "pip install -r requirements.txt"
     startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
     rootDir: backend
@@ -16,9 +17,10 @@ services:
   - type: web
     name: senatecnologo-frontend
     env: static
+    plan: free # 🔥 FORZAMOS PLAN GRATUITO
     buildCommand: "npm install && npm run build"
     staticPublishPath: dist
     rootDir: frontend
     envVars:
       - key: VITE_API_URL
-        sync: false # La llenarás con la URL que Render te dé para el backend
+        sync: false
