@@ -25,3 +25,5 @@ services:
     envVars:
       - key: VITE_API_URL
         sync: false
+      - key: NPM_CONFIG_LEGACY_PEER_DEPS
+        value: true
