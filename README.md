@@ -59,3 +59,19 @@ Para apagar ambos servicios al mismo tiempo, simplemente oprime `Ctrl + C` en la
 - Estilos "Vanilla CSS" inspirados en el diseño premium y de salud dental (Bordes suaves, Glassmorphism, sombras).
 - Totalmente unificados en una simple ejecución gracias a Python.
 - La ejecución en caliente (Hot Reload) sigue activa. ¡Haz un cambio en el código y lo verás al instante sin necesidad de apagar nada!
+
+
+### 3. ¡TO DO!
+
+- [ ] Pantalla para ingresar nombre apellido cedula y fecha de nacimiento 
+- [ ] Pantalla informes errores ( code review (pendiente asignacion))
+- [ ] Categorias (pendiente logica de negocio) 
+- [ ] Componentes organizacion (pendiente logica de negocio) 
+- [ ] Componentes reutilizables (Revision deacuerdo a desarrollo de proyecto)
+- [ ] Pendiente teniendo en cuenta desarrollo de proyecto (resolver duda segun documento aparte )
+- [ ] Informacion solicitada de cara al cliente (historias de usuarios -  word book )
+- [ ] 
+
+
+
+
