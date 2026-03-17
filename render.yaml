@@ -8,6 +8,8 @@ services:
     startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
     rootDir: backend
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.5
       - key: DATABASE_URL
         sync: false
       - key: SECRET_KEY
@@ -16,9 +18,8 @@ services:
   # ⚛️ FRONTEND: React + Vite
   - type: web
     name: senatecnologo-frontend
-    runtime: static # 🔥 Cambiamos 'env' por 'runtime' para que Render lo reconozca como Static Site
-    # No ponemos 'plan' porque los Static Sites son siempre gratuitos en Render
-    buildCommand: "npm install && npm run build"
+    runtime: static
+    buildCommand: "npm install --legacy-peer-deps && npm run build"
     staticPublishPath: dist
     rootDir: frontend
     envVars:
