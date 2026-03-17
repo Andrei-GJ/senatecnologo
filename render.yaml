@@ -1,0 +1,27 @@
+services:
+  # 🐍 BACKEND: FastAPI + PostgreSQL (Supabase)
+  - type: web
+    name: senatecnologo-backend
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    rootDir: backend
+    envVars:
+      - key: DATABASE_URL
+        sync: false # Lo pondrás manualmente en el Dashboard de Render
+      - key: SECRET_KEY
+        sync: false # Lo pondrás manualmente en el Dashboard de Render
+
+  # ⚛️ FRONTEND: React + Vite
+  - type: static
+    name: senatecnologo-frontend
+    env: node
+    buildCommand: "npm install && npm run build"
+    publishDir: dist
+    rootDir: frontend
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: senatecnologo-backend
+          type: web
+          property: url
