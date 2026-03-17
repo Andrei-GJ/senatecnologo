@@ -1,86 +1,86 @@
-# ==========================================
-# ESQUEMAS DE VALIDACIÓN (schemas.py)
-# ==========================================
-# Este archivo no crea tablas. Este archivo es como un "Guardia de Seguridad"
-# que lee la información que viene desde la página web (tu formulario en React)
-# y revisa que llegue completa, en el formato correcto, o la rechaza por fea.
+# =========================================================================
+# ESQUEMAS DE VALIDACIÓN DE DATOS (schemas.py)
+# =========================================================================
+# Este archivo (usando la librería Pydantic) se asegura de que los datos recibidos 
+# desde la página web (React) y los datos enviados desde la base de datos tengan
+# el formato y tipo correctos. Si falta un dato o un correo está mal escrito, 
+# la validación rechazará la petición para evitar errores.
 
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
 from datetime import datetime
 
-# ================= 1. TOKENS (Llaves de Sesión) =================
-# Si mandas buenas credenciales, te respondemos con un token (llave) y decimos que tipo (Bearer)
+# ==================== 1. TOKENS JWT ====================
+# Estructura del Token que se le devuelve al usuario cuando inicia sesión.
 class Token(BaseModel):
-    access_token: str
-    token_type: str
+    access_token: str # Cadena segura (El token de acceso)
+    token_type: str   # Usualmente es 'bearer'
 
-# Cuando desencriptamos la llave, esto es lo único que nos interesa sacar (el email del paciente)
+# Información opcional que extraemos desde dentro del token desencriptado.
 class TokenData(BaseModel):
-    email: Optional[str] = None
+    email: Optional[str] = None 
 
 
-# ================= 2. USUARIOS (Pacientes / Admin) =================
-# 2.1 Datos básicos que siempre, siempre se necesitan:
+# ==================== 2. USUARIOS Y PACIENTES ====================
+# Propiedades base que todos los usuarios (pacientes o administradores) deben tener.
 class UserBase(BaseModel):
-    # EmailStr asegurará que el texto de verdad sea un correo con "@" y ".com"
-    email: EmailStr
+    email: EmailStr # EmailStr valida automáticamente que sí tenga formato de correo (@ y punto)
     full_name: str
-    # Agregamos los permisos opcionales si vienen del formulario FrontEnd
+    
+    # Optional significa que estos datos pueden ser nulos si no fueron suministrados.
     cedula: Optional[str] = None
     fecha_nacimiento: Optional[str] = None
 
-# 2.2 Cuando se REGISTRAN, nos mandan TODO lo anterior (UserBase) + Una Contraseña!
+# Cuando un usuario envía el formulario de Registro, tiene que proveer una contraseña.
 class UserCreate(UserBase):
-    password: str # La contraseña solo llega en el Body del POST, pero NUNCA se manda de vuelta.
+    password: str 
 
-# 2.3 Cuando sacamos un Usuario de la Base de datos y lo mostramos como JSON, jamás mostramos la contraseña.
-# Solo le enviamos lo básico (UserBase) más su ID, rol y si está activo.
+# Cuando el servidor le responde a React con los datos de un usuario, 
+# usamos esta clase que nunca incluye la contraseña (por seguridad) pero sí su ID y Rol.
 class User(UserBase):
-    id: int
-    role: str
+    id: int 
+    role: str 
     is_active: bool
 
-    # Configuración mágica para que Pydantic lea desde SQLAlchemy como si fuera un diccionario normal Python
+    # Esta configuración permite a Pydantic leer los datos desde un objeto de SQLAlchemy (DB).
     model_config = {"from_attributes": True}
 
 
-# ================= 3. SERVICIOS MÉDICOS =================
-# Datos base para los servicios (nombre, descripcion, precio)
+# ==================== 3. SERVICIOS MÉDICOS ====================
+# Datos de un servicio: Limpieza, Blanqueamiento, Ortodoncia...
 class ServiceBase(BaseModel):
-    name: str # Ej: Extracción
-    description: str # Ej: 1 molar
-    price: float # Ej: 15.000
+    name: str 
+    description: str 
+    price: float # Tipo Float porque el precio puede poseer decimales
 
-# Lo que envía el Admin al botón "Crear nuevo servicio"
+# Lo que envía el Administrador para crear un nuevo servicio
 class ServiceCreate(ServiceBase):
-    pass # Significa que solo pide Base
+    pass # Pass indica que no requiere campos extras (es igual a ServiceBase)
 
-# Lo que enviamos desde el servidor a la lista azul de "Nuestros Servicios" de la página web.
+# Lo que le mostramos a los pacientes en el catálogo de servicios de la web
 class Service(ServiceBase):
-    id: int # Le pasamos también el ID interno porque lo necesitamos para el formulario.
+    id: int 
     is_active: bool
 
     model_config = {"from_attributes": True}
 
 
-# ================= 4. CITAS ODONTOLÓGICAS =================
-# Datos base de la cita.
+# ==================== 4. AGENDAMIENTO DE CITAS ====================
+# Información base para agendar una cita.
 class AppointmentBase(BaseModel):
-    # Nota: No necesitamos pedirle al Frontend el id del paciente: ya sabemos 
-    # quién es gracias al JWT/Token encripatdo que mandó con la petición.
+    # Nota: No pedimos el ID del paciente aquí, porque ese dato lo obtenemos
+    # de forma más segura a través de su Token JWT de sesión activa.
     service_id: int 
-    date: str # '2023-11-23'
-    time: str # '08:00'
+    date: str # Formato de fecha esperado: "2023-11-20"
+    time: str # Formato de hora esperado: "15:00"
 
-# Lo que el Frontend de React manda cuando oprime "Confirmar Cita"
 class AppointmentCreate(AppointmentBase):
     pass
 
-# Lo que ve el doctor o el paciente en el historial de citas agendadas de la base de datos
+# La información completa de una cita ya consolidada en la base de datos
 class Appointment(AppointmentBase):
     id: int
-    patient_id: int # Acá si le avisamos de QUIÉN ES
-    status: str # "confirmado, etc"
+    patient_id: int # El dueño real de la cita
+    status: str # "pending", "confirmed", etc.
     
     model_config = {"from_attributes": True}

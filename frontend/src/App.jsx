@@ -1,77 +1,210 @@
-// ==========================================
-// ARCHIVO CENTRAL DE LA APLICACIÓN (App.jsx)
-// ==========================================
-// Este archivo es como el director de la orquesta. 
-// No toca los instrumentos (no tiene la lógica compleja), 
-// solo decide en qué orden aparecen las partes de la página en la pantalla.
+// App.jsx - Archivo principal del frontend de Dental Blanc
+// Aquí está toda la lógica de la aplicación.
 
+import { useState, useEffect } from 'react';
 import './App.css';
 
-// Aquí importamos las "herramientas" (hooks) que guardan los datos 
-// de los usuarios y las citas médicas.
-import { useAuth } from './hooks/useAuth';
-import { useAppointments } from './hooks/useAppointments';
+import { Encabezado } from './components/Encabezado';
+import { TarjetasServicios } from './components/TarjetasServicios';
+import { FormularioLogin } from './components/FormularioLogin';
+import { FormularioCita } from './components/FormularioCita';
 
-// Aquí importamos las "partes visuales" (componentes) de la página.
-import { Header } from './components/Header';
-import { ServiceList } from './components/ServiceList';
-import { AuthForm } from './components/AuthForm';
-import { AppointmentForm } from './components/AppointmentForm';
+// Dirección del backend
+const API = 'http://localhost:8000/api';
 
 function App() {
-  // 1. Extraemos las herramientas relacionadas con la Sesión del Usuario (Login/Registro)
-  const { 
-    token, // Si hay un token, significa que el usuario ya inició sesión
-    authMode, // Nos dice si el usuario quiere "iniciar sesión" o "registrarse"
-    authForm, // Guarda lo que el usuario escribe en el formulario de login/registro
-    authError, // Guarda los mensajes de error por si se equivoca de contraseña
-    handleAuthChange, // Función para detectar cuando escribe en los campos
-    handleAuthSubmit, // Función para enviar los datos de login/registro
-    toggleAuthMode, // Función para cambiar entre "Registrar" o "Iniciar Sesión"
-    logout // Función para cerrar sesión (salir de la cuenta)
-  } = useAuth();
-  
-  // 2. Extraemos las herramientas relacionadas con las Citas Médicas y Servicios
-  const { 
-    services, // La lista de servicios que ofrece la clínica (ej: Limpieza, Extracción)
-    loading, // Un estado que nos dice si los servicios aún están cargando desde el servidor
-    formData, // Guarda la fecha, hora y servicio que el paciente escogió
-    submitStatus, // Nos dice si la cita se está enviando, si fue exitosa o si hubo error
-    handleInputChange, // Función para guardar lo que el paciente escoge para la cita
-    submitAppointment // Función que le avisa al servidor que guarde la cita final
-  } = useAppointments(token); // Le pasamos el token para que el servidor sepa quién agendó
 
+  // ---- Lista de servicios ----
+  const [servicios, setServicios] = useState([]);
+  const [cargando, setCargando] = useState(true);
+
+  // ---- Sesión ----
+  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [modoAuth, setModoAuth] = useState('login');
+  const [errorAuth, setErrorAuth] = useState(null);
+
+  // ---- Campos del formulario de login/registro (cada uno por separado) ----
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [nombre, setNombre] = useState('');
+  const [cedula, setCedula] = useState('');
+  const [fechaNacimiento, setFechaNacimiento] = useState('');
+
+  // ---- Campos del formulario de cita (cada uno por separado) ----
+  const [servicioElegido, setServicioElegido] = useState('');
+  const [fechaCita, setFechaCita] = useState('');
+  const [horaCita, setHoraCita] = useState('');
+  const [estadoCita, setEstadoCita] = useState(null);
+
+
+  // ==================== CARGAR SERVICIOS ====================
+  // Se ejecuta una vez al abrir la página.
+  useEffect(function () {
+    fetch(API + '/services')
+      .then(function (res) { return res.json(); })
+      .then(function (datos) {
+        setServicios(datos);
+        if (datos.length > 0) {
+          setServicioElegido(datos[0].id);
+        }
+        setCargando(false);
+      })
+      .catch(function () {
+        setCargando(false);
+      });
+  }, []);
+
+
+  // ==================== REGISTRO ====================
+  async function registrarPaciente() {
+    var respuesta = await fetch(API + '/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: email,
+        password: password,
+        full_name: nombre,
+        cedula: cedula,
+        fecha_nacimiento: fechaNacimiento,
+      }),
+    });
+
+    if (!respuesta.ok) {
+      var error = await respuesta.json();
+      throw new Error(error.detail || 'Error en el registro');
+    }
+
+    // Si todo salió bien, lo mandamos a iniciar sesión
+    setModoAuth('login');
+    setErrorAuth('¡Registro exitoso! Ya puedes iniciar sesión.');
+    setPassword('');
+    setNombre('');
+    setCedula('');
+    setFechaNacimiento('');
+  }
+
+
+  // ==================== LOGIN ====================
+  async function iniciarSesion() {
+    var cuerpo = new URLSearchParams();
+    cuerpo.append('username', email);
+    cuerpo.append('password', password);
+
+    var respuesta = await fetch(API + '/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: cuerpo,
+    });
+
+    if (!respuesta.ok) {
+      throw new Error('Correo o contraseña incorrectos');
+    }
+
+    var datos = await respuesta.json();
+    setToken(datos.access_token);
+    localStorage.setItem('token', datos.access_token);
+  }
+
+
+  // ==================== AL ENVIAR LOGIN/REGISTRO ====================
+  async function alEnviarAuth(e) {
+    e.preventDefault();
+    setErrorAuth(null);
+
+    try {
+      if (modoAuth === 'register') {
+        await registrarPaciente();
+      } else {
+        await iniciarSesion();
+      }
+    } catch (err) {
+      setErrorAuth(err.message);
+    }
+  }
+
+
+  // ==================== CERRAR SESIÓN ====================
+  function cerrarSesion() {
+    setToken(null);
+    localStorage.removeItem('token');
+  }
+
+
+  // ==================== AGENDAR CITA ====================
+  async function alEnviarCita(e) {
+    e.preventDefault();
+    setEstadoCita('submitting');
+
+    try {
+      var respuesta = await fetch(API + '/appointments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token,
+        },
+        body: JSON.stringify({
+          service_id: Number(servicioElegido),
+          date: fechaCita,
+          time: horaCita,
+        }),
+      });
+
+      if (respuesta.ok) {
+        setEstadoCita('success');
+        setFechaCita('');
+        setHoraCita('');
+        setTimeout(function () { setEstadoCita(null); }, 5000);
+      } else {
+        setEstadoCita('error');
+      }
+    } catch (error) {
+      setEstadoCita('error');
+    }
+  }
+
+
+  // ==================== LO QUE SE VE EN PANTALLA ====================
   return (
-    // Todo lo que está dentro de este recuadro es lo que el navegador dibujará (HTML modificado llamado JSX)
     <div className="app-container">
-      
-      {/* 1. Muestra la cabecera superior azul con el título de "Dental Blanc" */}
-      <Header token={token} onLogout={logout} />
+
+      <Encabezado sesionActiva={token !== null} alCerrarSesion={cerrarSesion} />
 
       <main className="main-content">
-        
-        {/* 2. Muestra los cuadros (tarjetas) con los servicios de la odontología */}
-        <ServiceList loading={loading} services={services} />
 
-        {/* 3. Lógica para decidir qué mostrar: ¿Formulario de Login o Formulario de Cita? */}
-        {!token ? (
-          // Si NO hay token (es decir, no ha iniciado sesión), le mostramos la pantalla de Ingreso
-          <AuthForm 
-            authMode={authMode} 
-            authForm={authForm} 
-            authError={authError} 
-            onAuthChange={handleAuthChange} 
-            onAuthSubmit={handleAuthSubmit} 
-            onToggleMode={toggleAuthMode}
+        <TarjetasServicios cargando={cargando} servicios={servicios} />
+
+        {/* Si NO tiene sesión: mostrar login. Si SI tiene: mostrar formulario de cita */}
+        {token === null ? (
+          <FormularioLogin
+            modo={modoAuth}
+            email={email}
+            password={password}
+            nombre={nombre}
+            cedula={cedula}
+            fechaNacimiento={fechaNacimiento}
+            error={errorAuth}
+            alCambiarEmail={function (e) { setEmail(e.target.value); }}
+            alCambiarPassword={function (e) { setPassword(e.target.value); }}
+            alCambiarNombre={function (e) { setNombre(e.target.value); }}
+            alCambiarCedula={function (e) { setCedula(e.target.value); }}
+            alCambiarFechaNacimiento={function (e) { setFechaNacimiento(e.target.value); }}
+            alEnviar={alEnviarAuth}
+            alCambiarModo={function () {
+              setModoAuth(modoAuth === 'login' ? 'register' : 'login');
+              setErrorAuth(null);
+            }}
           />
         ) : (
-          // Si SI hay token (ya inició sesión), le mostramos el formulario para pedir la cita
-          <AppointmentForm 
-            services={services} 
-            formData={formData} 
-            submitStatus={submitStatus} 
-            onChange={handleInputChange} 
-            onSubmit={submitAppointment}
+          <FormularioCita
+            servicios={servicios}
+            servicioElegido={servicioElegido}
+            fechaCita={fechaCita}
+            horaCita={horaCita}
+            estado={estadoCita}
+            alCambiarServicio={function (e) { setServicioElegido(e.target.value); }}
+            alCambiarFecha={function (e) { setFechaCita(e.target.value); }}
+            alCambiarHora={function (e) { setHoraCita(e.target.value); }}
+            alEnviar={alEnviarCita}
           />
         )}
       </main>
@@ -79,5 +212,4 @@ function App() {
   );
 }
 
-// Exportamos esta función principal para que React pueda arrancarla
 export default App;
