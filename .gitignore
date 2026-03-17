@@ -18,3 +18,10 @@ dist/
 # IDE
 .vscode/
 .idea/
+
+# Vercel
+.vercel/
+
+# Logs
+backend/uvicorn.log
+

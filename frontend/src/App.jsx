@@ -7,7 +7,7 @@ import { TarjetasServicios } from './components/TarjetasServicios';
 import { FormularioLogin } from './components/FormularioLogin';
 import { FormularioCita } from './components/FormularioCita';
 
-const API = 'http://localhost:8000/api';
+const API = import.meta.env.VITE_API_URL ?? '/api';
 
 function App() {
   const [servicios, setServicios] = useState([]);
