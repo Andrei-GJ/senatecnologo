@@ -8,16 +8,16 @@ services:
     rootDir: backend
     envVars:
       - key: DATABASE_URL
-        sync: false # Lo pondrás manualmente en el Dashboard de Render
+        sync: false
       - key: SECRET_KEY
-        sync: false # Lo pondrás manualmente en el Dashboard de Render
+        sync: false
 
-  # ⚛️ FRONTEND: React + Vite
-  - type: static_site
+  # ⚛️ FRONTEND: React + Vite (Definido como Web Service con env: static)
+  - type: web
     name: senatecnologo-frontend
-    env: node
+    env: static
     buildCommand: "npm install && npm run build"
-    publishDir: dist
+    staticPublishPath: dist
     rootDir: frontend
     envVars:
       - key: VITE_API_URL
