@@ -7,7 +7,8 @@ import { TarjetasServicios } from './components/TarjetasServicios';
 import { FormularioLogin } from './components/FormularioLogin';
 import { FormularioCita } from './components/FormularioCita';
 
-const API = 'http://localhost:8000/api';
+// Configuración dinámica de la API: usa la variable de entorno de Vite o localhost por defecto
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 function App() {
   const [servicios, setServicios] = useState([]);

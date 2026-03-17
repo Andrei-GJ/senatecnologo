@@ -23,3 +23,8 @@ INFO:     127.0.0.1:41120 - "GET /api/services HTTP/1.1" 200 OK
 INFO:     127.0.0.1:41136 - "GET /api/services HTTP/1.1" 200 OK
 INFO:     127.0.0.1:36282 - "GET /api/services HTTP/1.1" 200 OK
 INFO:     127.0.0.1:36296 - "GET /api/services HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43294 - "GET /api/services HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43298 - "GET /api/services HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44244 - "OPTIONS /api/register HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44244 - "POST /api/register HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44244 - "POST /api/login HTTP/1.1" 200 OK
