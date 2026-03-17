@@ -13,7 +13,7 @@ services:
         sync: false # Lo pondrás manualmente en el Dashboard de Render
 
   # ⚛️ FRONTEND: React + Vite
-  - type: static
+  - type: static_site
     name: senatecnologo-frontend
     env: node
     buildCommand: "npm install && npm run build"
