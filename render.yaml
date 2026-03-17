@@ -12,7 +12,7 @@ services:
       - key: SECRET_KEY
         sync: false
 
-  # ⚛️ FRONTEND: React + Vite (Definido como Web Service con env: static)
+  # ⚛️ FRONTEND: React + Vite
   - type: web
     name: senatecnologo-frontend
     env: static
@@ -21,7 +21,4 @@ services:
     rootDir: frontend
     envVars:
       - key: VITE_API_URL
-        fromService:
-          name: senatecnologo-backend
-          type: web
-          property: url
+        sync: false # La llenarás con la URL que Render te dé para el backend
