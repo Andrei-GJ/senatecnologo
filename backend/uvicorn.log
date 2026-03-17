@@ -1,0 +1,25 @@
+nohup: ignoring input
+INFO:     Will watch for changes in these directories: ['/home/andrei/repositorios/odontologia/backend']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [52616] using StatReload
+INFO:     Started server process [52649]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:57716 - "GET /api/services HTTP/1.1" 200 OK
+WARNING:  StatReload detected changes in 'database.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [52649]
+INFO:     Started server process [52812]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:35910 - "GET /api/services HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35920 - "GET /api/services HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45356 - "GET /api/services HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45350 - "GET /api/services HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46490 - "GET /api/services HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41120 - "GET /api/services HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41136 - "GET /api/services HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36282 - "GET /api/services HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36296 - "GET /api/services HTTP/1.1" 200 OK
