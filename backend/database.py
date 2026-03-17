@@ -24,11 +24,15 @@ if not SQLALCHEMY_DATABASE_URL:
     )
 
 # Creación del motor de conexión PostgreSQL (Supabase)
-# pool_pre_ping=True verifica si la conexión sigue viva antes de usarla (evita cuelgues)
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, 
     pool_pre_ping=True,
-    pool_recycle=3600
+    pool_recycle=300,        # Reciclar conexiones más rápido (cada 5 min)
+    pool_timeout=30,         # Esperar hasta 30 segundos
+    connect_args={
+        "sslmode": "require",
+        "connect_timeout": 10
+    }
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
