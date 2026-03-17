@@ -5,15 +5,19 @@
 # 1. Encriptar o proteger las contraseñas.
 # 2. Crear los "Tokens JWT" (Identificaciones digitales) para los usuarios.
 
+import os
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
 from werkzeug.security import generate_password_hash, check_password_hash
+from dotenv import load_dotenv
+
+# Carga las variables del archivo .env
+load_dotenv()
 
 # ----------------- CONFIGURACIONES DEL TOKEN -----------------
-# Esta es la llave secreta del servidor. Se usa para firmar los Tokens
-# y asegurar que nadie pueda falsificarlos.
-SECRET_KEY = "la-contrasena-super-secreta-del-servidor" 
+# La llave secreta se lee desde el archivo .env (ya no está en el código)
+SECRET_KEY = os.getenv("SECRET_KEY", "clave-por-defecto-cambiar-en-produccion")
 ALGORITHM = "HS256" # El algoritmo matemático que sella la firma.
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # El token dura 7 días y luego pide login de nuevo.
 

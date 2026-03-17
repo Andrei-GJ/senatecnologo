@@ -1,0 +1,20 @@
+# Variables de entorno (NUNCA subir contraseñas al repositorio)
+.env
+.env.local
+.env.production
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Base de datos local
+*.db
+
+# Node modules (Frontend)
+node_modules/
+dist/
+
+# IDE
+.vscode/
+.idea/

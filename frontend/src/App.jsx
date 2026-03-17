@@ -1,159 +1,105 @@
-// App.jsx - Archivo principal del frontend de Dental Blanc
-// Aquí está toda la lógica de la aplicación.
+// App.jsx - Rediseño enfocado en Salud Dental (Estilo "Sonría")
 
 import { useState, useEffect } from 'react';
-import './App.css';
 
 import { Encabezado } from './components/Encabezado';
 import { TarjetasServicios } from './components/TarjetasServicios';
 import { FormularioLogin } from './components/FormularioLogin';
 import { FormularioCita } from './components/FormularioCita';
 
-// Dirección del backend
 const API = 'http://localhost:8000/api';
 
 function App() {
-
-  // ---- Lista de servicios ----
   const [servicios, setServicios] = useState([]);
   const [cargando, setCargando] = useState(true);
-
-  // ---- Sesión ----
   const [token, setToken] = useState(localStorage.getItem('token'));
+  const [mostrarModalAuth, setMostrarModalAuth] = useState(false);
   const [modoAuth, setModoAuth] = useState('login');
   const [errorAuth, setErrorAuth] = useState(null);
 
-  // ---- Campos del formulario de login/registro (cada uno por separado) ----
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nombre, setNombre] = useState('');
   const [cedula, setCedula] = useState('');
   const [fechaNacimiento, setFechaNacimiento] = useState('');
 
-  // ---- Campos del formulario de cita (cada uno por separado) ----
   const [servicioElegido, setServicioElegido] = useState('');
   const [fechaCita, setFechaCita] = useState('');
   const [horaCita, setHoraCita] = useState('');
   const [estadoCita, setEstadoCita] = useState(null);
 
-
-  // ==================== CARGAR SERVICIOS ====================
-  // Se ejecuta una vez al abrir la página.
-  useEffect(function () {
+  useEffect(() => {
     fetch(API + '/services')
-      .then(function (res) { return res.json(); })
-      .then(function (datos) {
+      .then(res => res.json())
+      .then(datos => {
         setServicios(datos);
-        if (datos.length > 0) {
-          setServicioElegido(datos[0].id);
-        }
+        if (datos.length > 0) setServicioElegido(datos[0].id);
         setCargando(false);
       })
-      .catch(function () {
-        setCargando(false);
-      });
+      .catch(() => setCargando(false));
   }, []);
 
-
-  // ==================== REGISTRO ====================
   async function registrarPaciente() {
-    var respuesta = await fetch(API + '/register', {
+    const res = await fetch(API + '/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: email,
-        password: password,
-        full_name: nombre,
-        cedula: cedula,
-        fecha_nacimiento: fechaNacimiento,
-      }),
+      body: JSON.stringify({ email, password, full_name: nombre, cedula, fecha_nacimiento: fechaNacimiento }),
     });
-
-    if (!respuesta.ok) {
-      var error = await respuesta.json();
+    if (!res.ok) {
+      const error = await res.json();
       throw new Error(error.detail || 'Error en el registro');
     }
-
-    // Si todo salió bien, lo mandamos a iniciar sesión
     setModoAuth('login');
     setErrorAuth('¡Registro exitoso! Ya puedes iniciar sesión.');
-    setPassword('');
-    setNombre('');
-    setCedula('');
-    setFechaNacimiento('');
   }
 
-
-  // ==================== LOGIN ====================
   async function iniciarSesion() {
-    var cuerpo = new URLSearchParams();
+    const cuerpo = new URLSearchParams();
     cuerpo.append('username', email);
     cuerpo.append('password', password);
 
-    var respuesta = await fetch(API + '/login', {
+    const res = await fetch(API + '/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: cuerpo,
     });
+    if (!res.ok) throw new Error('Correo o contraseña incorrectos');
 
-    if (!respuesta.ok) {
-      throw new Error('Correo o contraseña incorrectos');
-    }
-
-    var datos = await respuesta.json();
+    const datos = await res.json();
     setToken(datos.access_token);
     localStorage.setItem('token', datos.access_token);
+    setMostrarModalAuth(false);
   }
 
-
-  // ==================== AL ENVIAR LOGIN/REGISTRO ====================
   async function alEnviarAuth(e) {
     e.preventDefault();
     setErrorAuth(null);
-
     try {
-      if (modoAuth === 'register') {
-        await registrarPaciente();
-      } else {
-        await iniciarSesion();
-      }
+      if (modoAuth === 'register') await registrarPaciente();
+      else await iniciarSesion();
     } catch (err) {
       setErrorAuth(err.message);
     }
   }
 
-
-  // ==================== CERRAR SESIÓN ====================
   function cerrarSesion() {
     setToken(null);
     localStorage.removeItem('token');
   }
 
-
-  // ==================== AGENDAR CITA ====================
   async function alEnviarCita(e) {
     e.preventDefault();
     setEstadoCita('submitting');
-
     try {
-      var respuesta = await fetch(API + '/appointments', {
+      const res = await fetch(API + '/appointments', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token,
-        },
-        body: JSON.stringify({
-          service_id: Number(servicioElegido),
-          date: fechaCita,
-          time: horaCita,
-        }),
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ service_id: Number(servicioElegido), date: fechaCita, time: horaCita }),
       });
-
-      if (respuesta.ok) {
+      if (res.ok) {
         setEstadoCita('success');
-        setFechaCita('');
-        setHoraCita('');
-        setTimeout(function () { setEstadoCita(null); }, 5000);
+        setFechaCita(''); setHoraCita('');
+        setTimeout(() => setEstadoCita(null), 5000);
       } else {
         setEstadoCita('error');
       }
@@ -162,52 +108,108 @@ function App() {
     }
   }
 
-
-  // ==================== LO QUE SE VE EN PANTALLA ====================
   return (
-    <div className="app-container">
+    <div className="flex min-h-screen flex-col bg-slate-50 selection:bg-sky-100 font-['Outfit']">
+      
+      <Encabezado 
+        sesionActiva={token !== null} 
+        alCerrarSesion={cerrarSesion} 
+        alAbrirLogin={() => setMostrarModalAuth(true)}
+      />
 
-      <Encabezado sesionActiva={token !== null} alCerrarSesion={cerrarSesion} />
+      <main className="flex-1">
+        
+        {/* Banner Hero - Enfoque en Bienestar y Sonrisas */}
+        <section className="relative overflow-hidden bg-white py-16 sm:py-24">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <div className="text-center">
+              <span className="inline-block rounded-full bg-sky-50 px-4 py-1.5 text-xs font-semibold tracking-wider text-sky-600 uppercase mb-4">
+                Cuidado Dental Avanzado
+              </span>
+              <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-6xl">
+                Diseñamos la sonrisa de <br/>
+                <span className="text-sky-500 italic">tus sueños</span>
+              </h1>
+              <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+                En Dental Blanc combinamos calidez humana con tecnología de punta para que sonrías con total confianza. Tu salud oral es nuestra prioridad.
+              </p>
+              <div className="mt-10 flex items-center justify-center gap-x-6">
+                {!token && (
+                  <button
+                    onClick={() => setMostrarModalAuth(true)}
+                    className="rounded-full bg-sky-500 px-8 py-3.5 text-sm font-bold text-white shadow-xl shadow-sky-200 hover:bg-sky-600 transition-all hover:scale-105 active:scale-95"
+                  >
+                    Agendar Valoración Gratuita
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          {/* Elementos decorativos (círculos suaves) */}
+          <div className="absolute -top-24 -left-20 h-64 w-64 rounded-full bg-sky-100/50 mix-blend-multiply blur-3xl" />
+          <div className="absolute -bottom-24 -right-20 h-64 w-64 rounded-full bg-cyan-100/50 mix-blend-multiply blur-3xl" />
+        </section>
 
-      <main className="main-content">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 pb-20">
+          <TarjetasServicios cargando={cargando} servicios={servicios} />
 
-        <TarjetasServicios cargando={cargando} servicios={servicios} />
-
-        {/* Si NO tiene sesión: mostrar login. Si SI tiene: mostrar formulario de cita */}
-        {token === null ? (
-          <FormularioLogin
-            modo={modoAuth}
-            email={email}
-            password={password}
-            nombre={nombre}
-            cedula={cedula}
-            fechaNacimiento={fechaNacimiento}
-            error={errorAuth}
-            alCambiarEmail={function (e) { setEmail(e.target.value); }}
-            alCambiarPassword={function (e) { setPassword(e.target.value); }}
-            alCambiarNombre={function (e) { setNombre(e.target.value); }}
-            alCambiarCedula={function (e) { setCedula(e.target.value); }}
-            alCambiarFechaNacimiento={function (e) { setFechaNacimiento(e.target.value); }}
-            alEnviar={alEnviarAuth}
-            alCambiarModo={function () {
-              setModoAuth(modoAuth === 'login' ? 'register' : 'login');
-              setErrorAuth(null);
-            }}
-          />
-        ) : (
-          <FormularioCita
-            servicios={servicios}
-            servicioElegido={servicioElegido}
-            fechaCita={fechaCita}
-            horaCita={horaCita}
-            estado={estadoCita}
-            alCambiarServicio={function (e) { setServicioElegido(e.target.value); }}
-            alCambiarFecha={function (e) { setFechaCita(e.target.value); }}
-            alCambiarHora={function (e) { setHoraCita(e.target.value); }}
-            alEnviar={alEnviarCita}
-          />
-        )}
+          {/* Sección de Agenda - Solo visible si hay sesión */}
+          {token !== null && (
+            <div id="agendar" className="mt-12 transition-all duration-500 ease-out translate-y-0 opacity-100">
+              <FormularioCita
+                servicios={servicios}
+                servicioElegido={servicioElegido}
+                fechaCita={fechaCita}
+                horaCita={horaCita}
+                estado={estadoCita}
+                alCambiarServicio={e => setServicioElegido(e.target.value)}
+                alCambiarFecha={e => setFechaCita(e.target.value)}
+                alCambiarHora={e => setHoraCita(e.target.value)}
+                alEnviar={alEnviarCita}
+              />
+            </div>
+          )}
+        </div>
       </main>
+
+      {/* Footer Más Amigable */}
+      <footer className="bg-white border-t border-slate-100 py-12">
+        <div className="mx-auto max-w-7xl px-6 text-center">
+          <div className="text-sky-500 font-bold text-lg mb-2">DENTAL BLANC</div>
+          <p className="text-slate-400 text-sm mb-6">Un compromiso real con tu bienestar oral.</p>
+          <div className="text-slate-300 text-[10px] font-bold uppercase tracking-widest">
+            &copy; 2024 Dental Blanc &bull; Especialistas en Sonrisas
+          </div>
+        </div>
+      </footer>
+
+      {/* Modal de Autenticación */}
+      {mostrarModalAuth && (
+        <FormularioLogin
+          modo={modoAuth}
+          email={email}
+          password={password}
+          nombre={nombre}
+          cedula={cedula}
+          fechaNacimiento={fechaNacimiento}
+          error={errorAuth}
+          alCambiarEmail={e => setEmail(e.target.value)}
+          alCambiarPassword={e => setPassword(e.target.value)}
+          alCambiarNombre={e => setNombre(e.target.value)}
+          alCambiarCedula={e => setCedula(e.target.value)}
+          alCambiarFechaNacimiento={e => setFechaNacimiento(e.target.value)}
+          alEnviar={alEnviarAuth}
+          alCerrar={() => {
+            setMostrarModalAuth(false);
+            setErrorAuth(null);
+          }}
+          alCambiarModo={() => {
+            setModoAuth(modoAuth === 'login' ? 'register' : 'login');
+            setErrorAuth(null);
+          }}
+        />
+      )}
     </div>
   );
 }

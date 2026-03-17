@@ -1,77 +1,89 @@
-# 🦷 Backend & Frontend Simultáneos para Clínica Odontológica
+# 🦷 Dental Blanc - Sistema Clínico Odontológico (Fullstack)
 
-Este proyecto contiene un sistema integrado y moderno para una Clínica Odontológica, compuesto por:
-1. **Backend**: Creado usando Python con `FastAPI`, extremadamente rápido y robusto.
-2. **Frontend**: Desarrollado en JavaScript usando `React` y empaquetado con `Vite`, con una excelente calidad gráfica, moderna, veloz y lista.
- 
----
+Este proyecto es una solución integral y moderna para la gestión de una Clínica Odontológica, diseñada con un enfoque de alto rendimiento y estética de lujo.
 
-## 🛠️ Requisitos Previos Generales
-Asegúrate de tener instalado:
-- **Python** (versión 3.8 o superior).
-- **Node.js** (versión 18 o superior, que incluye gestor `npm`).
+1. **Backend**: Python con `FastAPI`. Migrado de SQLite a **Supabase (PostgreSQL)** para escalabilidad y seguridad.
+2. **Frontend**: `React` con `Vite`, migrado totalmente a **Tailwind CSS v4**. Diseño premium inspirado en estéticas de alto impacto (Gymshark style).
 
 ---
 
-## 👨‍💻 Cómo Iniciarlo (El Método Unificado y Mágico)
+## 🚀 Novedades de la Versión 2.0
 
-He implementado un script central en la carpeta raíz `start.py` para que **el Backend y el Frontend convivan en la misma ventana de terminal** y funcionen de manera fluida, sin necesidad de navegar a carpetas separadas. ¡Ambos sistemas se encenderán desde aquí!
+- **☁️ Cloud Database**: Integración completa con Supabase.
+- **🎨 Tailwind CSS v4**: Motor de diseño ultra-rápido y minimalista.
+- **🔐 Seguridad Avanzada**: Manejo de variables de entorno (`.env`) y protección de credenciales.
+- **💎 Interfaz Premium**: Sistema de navegación limpia, tipografía de alto impacto y autenticación mediante modales elegantes.
 
-### 1. Preparar las dependencias (Sólo necesario la primera vez)
-Estando en la raíz del proyecto (`/home/andrei/repositorios/odontologia/`), crea un entorno virtual y dótalo de los requerimientos de Python:
+---
 
-**Para Linux / macOS:**
+## 🛠️ Requisitos Previos
+
+- **Python** 3.10+
+- **Node.js** 20+
+- **Cuenta en Supabase** (para la base de datos PostgreSQL)
+
+---
+
+## ⚙️ Configuración del Entorno (.env)
+
+Es **obligatorio** configurar el archivo `/backend/.env` para que el sistema funcione. Crea el archivo con el siguiente formato:
+
+```env
+# URL de conexión (Obtenla en Supabase > Settings > Database > URI)
+DATABASE_URL=postgresql://postgres:[PASSWORD]@[HOST]:5432/postgres
+
+# Llave secreta para firmar los tokens JWT
+SECRET_KEY=una_clave_muy_segura_aqui
+```
+
+---
+
+## 👨‍💻 Cómo Iniciar el Proyecto
+
+### 1. Preparar el Backend
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r backend/requirements.txt
-```
-
-**Para Windows (CMD / PowerShell):**
-```cmd
+cd backend
 python -m venv venv
-venv\Scripts\activate
-pip install -r backend/requirements.txt
+source venv/bin/activate  # En Linux/macOS
+# o venv\Scripts\activate en Windows
+pip install -r requirements.txt
 ```
 
-*(El script `start.py` ya se encargará automáticamente de instalar por ti los paquetes del Frontend en `npm` si ve que no los tienes todavía).*
+### 2. Poblar la Base de Datos (Semilla)
+Ejecuta esto una sola vez para crear las tablas y servicios base en Supabase:
+```bash
+python seed.py
+```
 
-### 2. Arrancar Todo a la Vez 🚀
-
-Una vez tengas tu entorno virtual con Python activo desde la raíz, tan solo ejecuta el poderoso script orquestador:
-
+### 3. Iniciar todo con el Orquestador
+Desde la raíz del proyecto:
 ```bash
 python start.py
 ```
-
-### 3. ¡Disfruta el Sistema!
-
-- El terminal te indicará que ambas aplicaciones levantaron de forma perfecta.
-- Frontend (React): Haz [Click en el Enlace de Vite](http://localhost:5173) en tu ventana, y navega por la interfaz de usuario con tu navegador.
-- Backend (FastAPI): Si quieres consultar la documentación técnica de la API interactiva visita [`http://localhost:8000/docs`](http://localhost:8000/docs).
-
-Para apagar ambos servicios al mismo tiempo, simplemente oprime `Ctrl + C` en la terminal.
+- **Frontend**: [http://localhost:5174](http://localhost:5174)
+- **Backend API**: [http://localhost:8000](http://localhost:8000)
 
 ---
 
-## ✨ Características Ocultas
+## ✨ Características Técnicas
 
-- Estilos "Vanilla CSS" inspirados en el diseño premium y de salud dental (Bordes suaves, Glassmorphism, sombras).
-- Totalmente unificados en una simple ejecución gracias a Python.
-- La ejecución en caliente (Hot Reload) sigue activa. ¡Haz un cambio en el código y lo verás al instante sin necesidad de apagar nada!
+- **Persistencia Distribuida**: Conexión optimizada con `pool_pre_ping` para evitar cuelgues de red.
+- **Glassmorphism & UX**: Animaciones suaves de entrada y desenfoque de fondo en modales.
+- **Modularidad**: Componentes React 100% funcionales y desacoplados.
+- **Mobile First**: Diseño totalmente responsivo para tablets y celulares.
 
+---
 
-### 3. ¡TO DO!
+## ✅ Progreso y TO-DO
 
-- [ ] Pantalla para ingresar nombre apellido cedula y fecha de nacimiento 
-- [ ] Pantalla informes errores ( code review (pendiente asignacion))
-- [ ] Categorias (pendiente logica de negocio) 
-- [ ] Componentes organizacion (pendiente logica de negocio) 
-- [ ] Componentes reutilizables (Revision deacuerdo a desarrollo de proyecto)
-- [ ] Pendiente teniendo en cuenta desarrollo de proyecto (resolver duda segun documento aparte )
-- [ ] Informacion solicitada de cara al cliente (historias de usuarios -  word book )
-- [ ] 
+- [x] Migración a PostgreSQL (Supabase).
+- [x] Implementación de Variables de Entorno.
+- [x] Rediseño de Interfaz a Estética Premium.
+- [x] Migración Completa a Tailwind CSS v4.
+- [x] Registro de Paciente con Cédula y Fecha de Nacimiento.
+- [ ] Panel de Administración Avanzado (En desarrollo).
+- [ ] Exportación de Reportes a PDF (Pendiente).
 
+---
 
-
-
+&copy; 2024 Dental Blanc &bull; Medellín, Colombia
