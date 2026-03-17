@@ -74,6 +74,64 @@ python start.py
 
 ---
 
+## ☁️ Deploy en Vercel
+
+El proyecto ya incluye toda la configuración necesaria (`vercel.json`, `api/index.py`).
+Sigue estos pasos para publicarlo en producción:
+
+### 1. Importar el repositorio
+
+1. Ve a [vercel.com/new](https://vercel.com/new) e inicia sesión con tu cuenta de GitHub.
+2. Haz clic en **"Add New… → Project"** y selecciona el repositorio `senatecnologo`.
+3. Vercel detectará automáticamente el `vercel.json`; no necesitas cambiar ninguna configuración del framework.
+
+### 2. Configurar las Variables de Entorno
+
+Antes de hacer el primer deploy, ve a **Settings → Environment Variables** y agrega:
+
+| Variable | Valor | Descripción |
+|---|---|---|
+| `DATABASE_URL` | `postgresql://postgres:[PASS]@[HOST]:5432/postgres` | Obtenla en Supabase → Settings → Database → URI |
+| `SECRET_KEY` | `una_cadena_aleatoria_muy_larga` | Clave secreta para firmar los tokens JWT |
+
+> 💡 Puedes generar un `SECRET_KEY` seguro con: `python -c "import secrets; print(secrets.token_hex(32))"`
+
+### 3. Hacer el Deploy
+
+Haz clic en **"Deploy"**. Vercel ejecutará:
+```
+cd frontend && npm install && npm run build
+```
+y publicará el resultado en `frontend/dist`.
+La API FastAPI quedará disponible en `https://tu-app.vercel.app/api`.
+
+### 4. Inicializar la Base de Datos (primera vez)
+
+Ejecuta el script de semilla **una sola vez** apuntando a tu base de datos de Supabase:
+```bash
+cd backend
+cp .env.example .env       # Agrega DATABASE_URL y SECRET_KEY reales
+python -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+python seed.py             # Crea tablas y servicios iniciales
+```
+
+### 5. Actualizaciones automáticas
+
+Cada `git push` a la rama `main` lanzará un nuevo deploy automáticamente en Vercel.
+
+---
+
+## 👨‍💻 Desarrollo Local (sigue funcionando igual)
+
+```bash
+python start.py   # Levanta backend en :8000 y frontend en :5174
+```
+
+El proxy de Vite redirige `/api/*` al backend local; no necesitas configurar ninguna variable de entorno adicional.
+
+---
+
 ## ✅ Progreso y TO-DO
 
 - [x] Migración a PostgreSQL (Supabase).
@@ -81,6 +139,7 @@ python start.py
 - [x] Rediseño de Interfaz a Estética Premium.
 - [x] Migración Completa a Tailwind CSS v4.
 - [x] Registro de Paciente con Cédula y Fecha de Nacimiento.
+- [x] Configuración de Deploy en Vercel (`vercel.json` + API serverless).
 - [ ] Panel de Administración Avanzado (En desarrollo).
 - [ ] Exportación de Reportes a PDF (Pendiente).
 
