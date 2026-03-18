@@ -10,10 +10,10 @@ from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
 from werkzeug.security import generate_password_hash, check_password_hash
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
 # Carga las variables del archivo .env
-load_dotenv()
+load_dotenv(find_dotenv())
 
 # ----------------- CONFIGURACIONES DEL TOKEN -----------------
 # La llave secreta se lee desde el archivo .env (ya no está en el código)

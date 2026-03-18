@@ -5,13 +5,13 @@
 # La URL de conexión se lee desde el archivo .env para mayor seguridad.
 
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # Carga las variables definidas en el archivo .env
-load_dotenv()
+load_dotenv(find_dotenv())
 
 # Lee la URL de la base de datos desde la variable de entorno
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")

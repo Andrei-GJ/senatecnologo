@@ -86,4 +86,4 @@ python start.py
 
 ---
 
-&copy; 2024 Dental Blanc &bull; Medellín, Colombia
+&copy; 2024 Dental Blanc\
