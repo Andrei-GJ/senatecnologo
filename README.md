@@ -82,7 +82,7 @@ python start.py
 - [x] Migración Completa a Tailwind CSS v4.
 - [x] Registro de Paciente con Cédula y Fecha de Nacimiento.
 - [ ] Panel de Administración Avanzado (En desarrollo).
-- [ ] Exportación de Reportes a PDF (Pendiente).
+- [x] Exportación de Reportes a PDF (Pendiente).
 
 ---
 
