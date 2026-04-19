@@ -1,11 +1,11 @@
 // Encabezado.jsx - Diseño Clínico y Moderno
 
-export function Encabezado({ sesionActiva, alCerrarSesion, alAbrirLogin }) {
+export function Encabezado({ sesionActiva, alCerrarSesion, alAbrirLogin, vistaActual, alCambiarVista }) {
   return (
     <header className="sticky top-0 z-50 h-20 bg-white/80 backdrop-blur-md border-b border-slate-100 px-[5%] shadow-sm flex items-center justify-between">
       
       {/* Lado Izquierdo: Marca */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 cursor-pointer" onClick={() => alCambiarVista('inicio')}>
         <div className="h-10 w-10 flex items-center justify-center bg-sky-500 rounded-xl shadow-lg shadow-sky-100">
           <svg className="text-white" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
             <path d="M7 12c.5-2 1.5-3 2.5-3s2 1 2.5 3c.5 2 1.5 3 2.5 3s2-1 2.5-3c.5-2 1.5-3 2.5-3s2 1 2.5 3"/>
@@ -20,9 +20,10 @@ export function Encabezado({ sesionActiva, alCerrarSesion, alAbrirLogin }) {
 
       {/* Navegación Central (Limpios) */}
       <nav className="hidden md:flex items-center gap-8">
-        <a href="#" className="text-sm font-semibold text-slate-600 hover:text-sky-500 transition-colors">Servicios</a>
-        <a href="#" className="text-sm font-semibold text-slate-600 hover:text-sky-500 transition-colors">Nosotros</a>
-        <a href="#" className="text-sm font-semibold text-slate-600 hover:text-sky-500 transition-colors">Blog</a>
+        <button onClick={() => alCambiarVista('inicio')} className={`text-sm font-semibold transition-colors ${vistaActual === 'inicio' ? 'text-sky-500' : 'text-slate-600 hover:text-sky-500'}`}>Inicio</button>
+        <button onClick={() => alCambiarVista('servicios')} className={`text-sm font-semibold transition-colors ${vistaActual === 'servicios' ? 'text-sky-500' : 'text-slate-600 hover:text-sky-500'}`}>Servicios</button>
+        <button onClick={() => alCambiarVista('nosotros')} className={`text-sm font-semibold transition-colors ${vistaActual === 'nosotros' ? 'text-sky-500' : 'text-slate-600 hover:text-sky-500'}`}>Nosotros</button>
+        <button onClick={() => alCambiarVista('blog')} className={`text-sm font-semibold transition-colors ${vistaActual === 'blog' ? 'text-sky-500' : 'text-slate-600 hover:text-sky-500'}`}>Blog</button>
       </nav>
 
       {/* Acciones Derecha */}
