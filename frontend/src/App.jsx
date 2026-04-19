@@ -6,11 +6,15 @@ import { Encabezado } from './components/Encabezado';
 import { TarjetasServicios } from './components/TarjetasServicios';
 import { FormularioLogin } from './components/FormularioLogin';
 import { FormularioCita } from './components/FormularioCita';
+import { PaginaServicios } from './components/PaginaServicios';
+import { PaginaNosotros } from './components/PaginaNosotros';
+import { PaginaBlog } from './components/PaginaBlog';
 
 // Configuración dinámica de la API: usa la variable de entorno de Vite o localhost por defecto
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 function App() {
+  const [vistaActual, setVistaActual] = useState('inicio');
   const [servicios, setServicios] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
@@ -116,62 +120,73 @@ function App() {
         sesionActiva={token !== null} 
         alCerrarSesion={cerrarSesion} 
         alAbrirLogin={() => setMostrarModalAuth(true)}
+        vistaActual={vistaActual}
+        alCambiarVista={setVistaActual}
       />
 
       <main className="flex-1">
         
-        {/* Banner Hero - Enfoque en Bienestar y Sonrisas */}
-        <section className="relative overflow-hidden bg-white py-16 sm:py-24">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <div className="text-center">
-              <span className="inline-block rounded-full bg-sky-50 px-4 py-1.5 text-xs font-semibold tracking-wider text-sky-600 uppercase mb-4">
-                Cuidado Dental Avanzado
-              </span>
-              <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-6xl">
-                Diseñamos la sonrisa de <br/>
-                <span className="text-sky-500 italic">tus sueños</span>
-              </h1>
-              <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-                En Dental Blanc combinamos calidez humana con tecnología de punta para que sonrías con total confianza. Tu salud oral es nuestra prioridad.
-              </p>
-              <div className="mt-10 flex items-center justify-center gap-x-6">
-                {!token && (
-                  <button
-                    onClick={() => setMostrarModalAuth(true)}
-                    className="rounded-full bg-sky-500 px-8 py-3.5 text-sm font-bold text-white shadow-xl shadow-sky-200 hover:bg-sky-600 transition-all hover:scale-105 active:scale-95"
-                  >
-                    Agendar Valoración Gratuita
-                  </button>
-                )}
+        {vistaActual === 'inicio' && (
+          <>
+            {/* Banner Hero - Enfoque en Bienestar y Sonrisas */}
+            <section className="relative overflow-hidden bg-white py-16 sm:py-24">
+              <div className="mx-auto max-w-7xl px-6 lg:px-8">
+                <div className="text-center">
+                  <span className="inline-block rounded-full bg-sky-50 px-4 py-1.5 text-xs font-semibold tracking-wider text-sky-600 uppercase mb-4">
+                    Cuidado Dental Avanzado
+                  </span>
+                  <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-6xl">
+                    Diseñamos la sonrisa de <br/>
+                    <span className="text-sky-500 italic">tus sueños</span>
+                  </h1>
+                  <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+                    En Dental Blanc combinamos calidez humana con tecnología de punta para que sonrías con total confianza. Tu salud oral es nuestra prioridad.
+                  </p>
+                  <div className="mt-10 flex items-center justify-center gap-x-6">
+                    {!token && (
+                      <button
+                        onClick={() => setMostrarModalAuth(true)}
+                        className="rounded-full bg-sky-500 px-8 py-3.5 text-sm font-bold text-white shadow-xl shadow-sky-200 hover:bg-sky-600 transition-all hover:scale-105 active:scale-95"
+                      >
+                        Agendar Valoración Gratuita
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-          
-          {/* Elementos decorativos (círculos suaves) */}
-          <div className="absolute -top-24 -left-20 h-64 w-64 rounded-full bg-sky-100/50 mix-blend-multiply blur-3xl" />
-          <div className="absolute -bottom-24 -right-20 h-64 w-64 rounded-full bg-cyan-100/50 mix-blend-multiply blur-3xl" />
-        </section>
+              
+              {/* Elementos decorativos (círculos suaves) */}
+              <div className="absolute -top-24 -left-20 h-64 w-64 rounded-full bg-sky-100/50 mix-blend-multiply blur-3xl" />
+              <div className="absolute -bottom-24 -right-20 h-64 w-64 rounded-full bg-cyan-100/50 mix-blend-multiply blur-3xl" />
+            </section>
 
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 pb-20">
-          <TarjetasServicios cargando={cargando} servicios={servicios} />
+            <div className="mx-auto max-w-7xl px-6 lg:px-8 pb-20">
+              <TarjetasServicios cargando={cargando} servicios={servicios} />
 
-          {/* Sección de Agenda - Solo visible si hay sesión */}
-          {token !== null && (
-            <div id="agendar" className="mt-12 transition-all duration-500 ease-out translate-y-0 opacity-100">
-              <FormularioCita
-                servicios={servicios}
-                servicioElegido={servicioElegido}
-                fechaCita={fechaCita}
-                horaCita={horaCita}
-                estado={estadoCita}
-                alCambiarServicio={e => setServicioElegido(e.target.value)}
-                alCambiarFecha={e => setFechaCita(e.target.value)}
-                alCambiarHora={e => setHoraCita(e.target.value)}
-                alEnviar={alEnviarCita}
-              />
+              {/* Sección de Agenda - Solo visible si hay sesión */}
+              {token !== null && (
+                <div id="agendar" className="mt-12 transition-all duration-500 ease-out translate-y-0 opacity-100">
+                  <FormularioCita
+                    servicios={servicios}
+                    servicioElegido={servicioElegido}
+                    fechaCita={fechaCita}
+                    horaCita={horaCita}
+                    estado={estadoCita}
+                    alCambiarServicio={e => setServicioElegido(e.target.value)}
+                    alCambiarFecha={e => setFechaCita(e.target.value)}
+                    alCambiarHora={e => setHoraCita(e.target.value)}
+                    alEnviar={alEnviarCita}
+                  />
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </>
+        )}
+
+        {vistaActual === 'servicios' && <PaginaServicios cargando={cargando} servicios={servicios} token={token} alAbrirLogin={() => setMostrarModalAuth(true)} />}
+        {vistaActual === 'nosotros' && <PaginaNosotros />}
+        {vistaActual === 'blog' && <PaginaBlog />}
+        
       </main>
 
       {/* Footer Más Amigable */}
