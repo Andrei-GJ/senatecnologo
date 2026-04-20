@@ -9,12 +9,14 @@ import { FormularioCita } from './components/FormularioCita';
 import { PaginaServicios } from './components/PaginaServicios';
 import { PaginaNosotros } from './components/PaginaNosotros';
 import { PaginaBlog } from './components/PaginaBlog';
+import { PaginaArticulo } from './components/PaginaArticulo';
 
 // Configuración dinámica de la API: usa la variable de entorno de Vite o localhost por defecto
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 function App() {
   const [vistaActual, setVistaActual] = useState('inicio');
+  const [articuloId, setArticuloId] = useState(null);
   const [servicios, setServicios] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
@@ -90,6 +92,11 @@ function App() {
   function cerrarSesion() {
     setToken(null);
     localStorage.removeItem('token');
+  }
+
+  function verArticulo(id) {
+    setArticuloId(id);
+    setVistaActual('articulo');
   }
 
   async function alEnviarCita(e) {
@@ -185,7 +192,8 @@ function App() {
 
         {vistaActual === 'servicios' && <PaginaServicios cargando={cargando} servicios={servicios} token={token} alAbrirLogin={() => setMostrarModalAuth(true)} />}
         {vistaActual === 'nosotros' && <PaginaNosotros />}
-        {vistaActual === 'blog' && <PaginaBlog />}
+        {vistaActual === 'blog' && <PaginaBlog alVerArticulo={verArticulo} />}
+        {vistaActual === 'articulo' && <PaginaArticulo id={articuloId} alVolver={() => setVistaActual('blog')} />}
         
       </main>
 
