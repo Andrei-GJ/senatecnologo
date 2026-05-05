@@ -17,7 +17,7 @@ def main():
     if not os.path.exists(os.path.join(frontend_dir, "node_modules")):
         print("\n📦 Instalando dependencias del Frontend (Esto sólo ocurre la primera vez)...")
         try:
-            subprocess.check_call([npm_cmd, "install"], cwd=frontend_dir)
+            subprocess.check_call([npm_cmd, "install", "--legacy-peer-deps"], cwd=frontend_dir)
         except Exception as e:
             print(f"Error instalando paquetes de frontend: {e}")
             sys.exit(1)
