@@ -5,10 +5,42 @@
 # para saber qué columnas crear y de qué tipo de dato debe ser cada una 
 # (Ej: Texto, Número, Fecha).
 
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Boolean, DateTime, Date, Time, Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from database import Base
 import datetime
+import enum
+
+# ----------------- ENUMS PARA ROLES Y ESTADOS -----------------
+class UserRole(str, enum.Enum):
+    patient = "patient"
+    admin = "admin"
+    dentist = "dentist"
+
+class AppointmentStatus(str, enum.Enum):
+    pending = "pending"
+    confirmed = "confirmed"
+    cancelled = "cancelled"
+
+class ServiceStatus(str, enum.Enum):
+    pending = "pending"
+    completed = "completed"
+    cancelled = "cancelled"
+
+
+# ----------------- TABLAS DE CATÁLOGO (MAESTRAS) -----------------
+class Role(Base):
+    __tablename__ = "roles"
+    name = Column(String, primary_key=True)
+
+class AppointmentStatusModel(Base):
+    __tablename__ = "appointment_statuses"
+    name = Column(String, primary_key=True)
+
+class ServiceStatusModel(Base):
+    __tablename__ = "service_statuses"
+    name = Column(String, primary_key=True)
+
 
 # ----------------- TABLA DE USUARIOS -----------------
 class User(Base):
@@ -28,16 +60,16 @@ class User(Base):
     
     # Documentos y fechas de registro obligatorias según requerimientos
     cedula = Column(String, unique=True, index=True, nullable=True) 
-    fecha_nacimiento = Column(String, nullable=True) 
+    fecha_nacimiento = Column(Date, nullable=True) # Tipo Date normalizado
     
-    # "role" define los permisos: "patient" (paciente), "admin" (administrador)
-    role = Column(String, default="patient") 
+    # "role" define los permisos y apunta a la tabla de catálogo 'roles'
+    role = Column(String, ForeignKey("roles.name"), default="patient") 
     
     # Control para saber si la cuenta está activa o suspendida
     is_active = Column(Boolean, default=True)
 
-    # Conexión con la tabla de Citas. Un paciente puede tener múltiples citas.
-    appointments = relationship("Appointment", back_populates="patient")
+    # Conexión con la tabla de Órdenes. Un paciente puede tener múltiples órdenes.
+    orders = relationship("Order", back_populates="client")
 
 
 # ----------------- TABLA DE SERVICIOS -----------------
@@ -53,31 +85,37 @@ class Service(Base):
     # Control para ver si el servicio aún se sigue ofreciendo
     is_active = Column(Boolean, default=True)
 
-    # Conexión con Citas. Varios pacientes pueden pedir este mismo servicio.
-    appointments = relationship("Appointment", back_populates="service")
+    # Conexión con Órdenes. Un servicio puede tener múltiples órdenes.
+    orders = relationship("Order", back_populates="service")
 
 
-# ----------------- TABLA DE CITAS -----------------
-# Gestiona el agendamiento y los horarios de atención.
-class Appointment(Base):
-    __tablename__ = "appointments"
+# NOTE:
+# The previous `Appointment` table has been removed. Appointment-related
+# fields (date/time/created_at) are now stored on `orders` so a single
+# `orders` table holds scheduling + service state information.
+
+
+# ----------------- TABLA DE ÓRDENES -----------------
+# Registra las órdenes que enlazan clientes con servicios
+class Order(Base):
+    __tablename__ = "orders"
 
     id = Column(Integer, primary_key=True, index=True)
     
-    # Relaciones o llaves foráneas que apuntan al ID del usuario y del servicio
-    patient_id = Column(Integer, ForeignKey("users.id")) 
-    service_id = Column(Integer, ForeignKey("services.id")) 
-    
-    # Fechas y horas de la cita
-    date = Column(String) # Formato YYYY-MM-DD
-    time = Column(String) # Formato HH:MM
-    
-    # Estado (pending=pendiente, confirmed=confirmada, cancelled=cancelada)
-    status = Column(String, default="pending") 
-    
-    # Hora en la cual el usuario registró la cita en el sistema web
+    # Enlaza al cliente (usuario) y al servicio
+    client_id = Column(Integer, ForeignKey("users.id"))
+    service_id = Column(Integer, ForeignKey("services.id"))
+
+    # Fecha y hora de la prestación/turno (antes en appointments)
+    date = Column(Date, nullable=True)
+    time = Column(Time, nullable=True)
+
+    # Estado que apunta a la tabla de catálogo 'service_statuses'
+    status = Column(String, ForeignKey("service_statuses.name"), default="pending")
+
+    # Fecha de creación de la orden
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
-    # Relaciones (relationship) para navegar entre las tablas más fácilmente
-    patient = relationship("User", back_populates="appointments")
-    service = relationship("Service", back_populates="appointments")
+    # Relaciones para navegar fácilmente entre tablas
+    client = relationship("User", back_populates="orders")
+    service = relationship("Service", back_populates="orders")

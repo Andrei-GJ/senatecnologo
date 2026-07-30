@@ -101,7 +101,7 @@ def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
         cedula=user.cedula,               # <= Se registra la Cédula suministrada (TO-DO SENA)
         fecha_nacimiento=user.fecha_nacimiento, # <= Se registra la Fecha (TO-DO SENA)
         hashed_password=hashed_password,
-        role="patient" # Por defecto todos ingresan con permisos de cuenta básica (patient).
+        role=models.UserRole.patient # Por defecto todos ingresan como paciente (seguridad estricta)
     )
     
     # D. "commit" y "refresh" envían la petición (INSERT) y leen su ID AutoIncremnetable
@@ -151,7 +151,7 @@ def get_services(db: Session = Depends(get_db)):
 # ================= RUTAS: AGENDAMIENTO Y RESERVAS =================
 
 # @app.post("/api/appointments"): Confirmación de una nueva cita. Exige permisos de token.
-@app.post("/api/appointments", response_model=schemas.Appointment)
+@app.post("/api/appointments")
 def create_appointment(
     appointment: schemas.AppointmentCreate, 
     db: Session = Depends(get_db),
@@ -161,33 +161,62 @@ def create_appointment(
     service = db.query(models.Service).filter(models.Service.id == appointment.service_id).first()
     if not service:
         raise HTTPException(status_code=404, detail="El servicio odontológico solicitado figura como no disponible.")
-    
-    # B. Creación segura de Cita.
-    # Extraemos el "patient_id" desde el JWT validado (current_user.id) para 
-    # proteger contra Vulnerabilidades IDOR de manipulación de peticiones HTTP.
-    new_appointment = models.Appointment(
-        patient_id=current_user.id,
+
+    # B. Creamos directamente una Order que ahora contiene la información de cita
+    new_order = models.Order(
+        client_id=current_user.id,
         service_id=appointment.service_id,
         date=appointment.date,
-        time=appointment.time
+        time=appointment.time,
+        status="pending"
     )
-    
-    # Insert de Cita y Commit final a SQLite
-    db.add(new_appointment)
+
+    db.add(new_order)
     db.commit()
-    db.refresh(new_appointment)
-    
-    return new_appointment
+    db.refresh(new_order)
+
+    return {
+        "id": new_order.id,
+        "client_id": new_order.client_id,
+        "service_id": new_order.service_id,
+        "date": new_order.date.isoformat() if new_order.date else None,
+        "time": (new_order.time.strftime("%H:%M:%S") if new_order.time else None),
+        "status": new_order.status,
+        "created_at": new_order.created_at.isoformat()
+    }
 
 
 # @app.get("/api/appointments"): Endpoint para generar listado del Historial de Citas
-@app.get("/api/appointments", response_model=List[schemas.Appointment])
+@app.get("/api/appointments")
 def get_appointments(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    
-    # A. Lógica Administrativa: Si es el gerente/admin, le entregamos el query de todo (all)
+    # Now appointments are represented by orders with date/time fields.
     if current_user.role == "admin":
-        return db.query(models.Appointment).all()
-        
-    # B. Lógica de Pacientes (Privacidad): Limitamos el Query usando WHERE clause en base a su propia ID
+        rows = db.query(models.Order).all()
     else:
-        return db.query(models.Appointment).filter(models.Appointment.patient_id == current_user.id).all()
+        rows = db.query(models.Order).filter(models.Order.client_id == current_user.id).all()
+
+    result = []
+    for r in rows:
+        result.append({
+            "id": r.id,
+            "client_id": r.client_id,
+            "service_id": r.service_id,
+            "date": r.date.isoformat() if r.date else None,
+            "time": (r.time.strftime("%H:%M:%S") if r.time else None),
+            "status": r.status,
+            "created_at": r.created_at.isoformat()
+        })
+    return result
+
+
+# @app.get("/api/orders"): Endpoint para generar listado de Órdenes creadas
+@app.get("/api/orders", response_model=List[schemas.Order])
+def get_orders(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    
+    # A. Lógica Administrativa: Si es admin, ve todas las órdenes
+    if current_user.role == "admin":
+        return db.query(models.Order).all()
+        
+    # B. Lógica de Clientes: Limitamos el Query a las suyas propias
+    else:
+        return db.query(models.Order).filter(models.Order.client_id == current_user.id).all()
