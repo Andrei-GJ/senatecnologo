@@ -10,8 +10,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# Carga las variables definidas en el archivo .env
-load_dotenv(find_dotenv())
+# Carga las variables definidas en el archivo .env (sobrescribiendo variables del sistema si existen)
+load_dotenv(find_dotenv(), override=True)
 
 # Lee la URL de la base de datos desde la variable de entorno
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
