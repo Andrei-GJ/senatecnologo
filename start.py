@@ -13,6 +13,8 @@ def main():
 
     print("\n🦷 Preparando el entorno de la Clínica Odontológica...")
 
+    backend_dir = os.path.join(root_dir, "backend")
+
     # Instalar dependencias de React si no hay node_modules
     if not os.path.exists(os.path.join(frontend_dir, "node_modules")):
         print("\n📦 Instalando dependencias del Frontend (Esto sólo ocurre la primera vez)...")
@@ -22,16 +24,37 @@ def main():
             print(f"Error instalando paquetes de frontend: {e}")
             sys.exit(1)
 
+    # Verificar e instalar dependencias del Backend si faltan
+    print("\n🐍 Verificando dependencias del Backend...")
+    try:
+        # Hacemos una comprobación rápida importando librerías clave
+        subprocess.check_call([sys.executable, "-c", "import uvicorn, fastapi, sqlalchemy, jose"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except subprocess.CalledProcessError:
+        print("📦 Instalando dependencias del Backend (requirements.txt)...")
+        try:
+            requirements_file = os.path.join(backend_dir, "requirements.txt")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", requirements_file])
+        except Exception as e:
+            print(f"Error instalando paquetes del backend: {e}")
+            sys.exit(1)
+
     print("\n🚀 Iniciando servicios simultáneos desde la raíz...")
     
+    # Configurar variables de entorno para que el backend reconozca la ruta de sus módulos
+    backend_env = os.environ.copy()
+    if "PYTHONPATH" in backend_env:
+        backend_env["PYTHONPATH"] = backend_dir + os.pathsep + backend_env["PYTHONPATH"]
+    else:
+        backend_env["PYTHONPATH"] = backend_dir
+
     # Comando de backend usando el intérprete actual de python
-    backend_cmd = [sys.executable, "-m", "uvicorn", "backend.main:app", "--reload", "--port", "8000"]
+    backend_cmd = [sys.executable, "-m", "uvicorn", "main:app", "--reload", "--port", "8000"]
     # Comando de frontend
     frontend_cmd = [npm_cmd, "run", "dev"]
 
     try:
         print("-> ⚙️  Levantando FastAPI (Backend) en el puerto 8000...")
-        backend_process = subprocess.Popen(backend_cmd, cwd=root_dir)
+        backend_process = subprocess.Popen(backend_cmd, cwd=backend_dir, env=backend_env)
         
         time.sleep(1.5) # Espera un instante para que los mensajes en consola no se sobrepongan feo
         
