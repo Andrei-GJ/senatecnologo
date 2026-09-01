@@ -8,7 +8,7 @@
 
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
-from datetime import datetime, date, time
+from datetime import datetime, date as date_type, time as time_type
 
 # Importamos los Enums parametrizados desde models
 from models import UserRole, ServiceStatus
@@ -32,7 +32,7 @@ class UserBase(BaseModel):
     
     # Tipo date nativo de Python para validación y normalización estricta
     cedula: Optional[str] = None
-    fecha_nacimiento: Optional[date] = None
+    fecha_nacimiento: Optional[date_type] = None
 
 # Cuando un usuario envía el formulario de Registro, tiene que proveer una contraseña.
 class UserCreate(UserBase):
@@ -74,8 +74,8 @@ class AppointmentBase(BaseModel):
     # Nota: No pedimos el ID del paciente aquí, porque ese dato lo obtenemos
     # de forma más segura a través de su Token JWT de sesión activa.
     service_id: int 
-    date: date # Formato de fecha nativo (validará YYYY-MM-DD)
-    time: time # Formato de hora nativo (validará HH:MM o HH:MM:SS)
+    date: date_type
+    time: time_type# Formato de hora nativo (validará HH:MM o HH:MM:SS)
 
 class AppointmentCreate(AppointmentBase):
     pass
@@ -89,8 +89,8 @@ class AppointmentCreate(AppointmentBase):
 # Información base de una orden
 class OrderBase(BaseModel):
     service_id: int
-    date: Optional[date] = None
-    time: Optional[time] = None
+    date: Optional[date_type] = None
+    time: Optional[time_type] = None
     status: ServiceStatus = ServiceStatus.pending
 
 class OrderCreate(OrderBase):
