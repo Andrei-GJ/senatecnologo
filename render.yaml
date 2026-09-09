@@ -1,5 +1,5 @@
 services:
-  # 🐍 BACKEND: FastAPI + PostgreSQL (Supabase)
+  # 🐍 BACKEND: FastAPI + PostgreSQL (neon)
   - type: web
     name: senatecnologo-backend
     env: python

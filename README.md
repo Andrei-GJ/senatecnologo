@@ -2,14 +2,14 @@
 
 Este proyecto es una solución integral y moderna para la gestión de una Clínica Odontológica, diseñada con un enfoque de alto rendimiento y estética de lujo.
 
-1. **Backend**: Python con `FastAPI`. Migrado de SQLite a **Supabase (PostgreSQL)** para escalabilidad y seguridad.
+1. **Backend**: Python con `FastAPI`. Migrado de SQLite a **neon (PostgreSQL)** para escalabilidad y seguridad.
 2. **Frontend**: `React` con `Vite`, migrado totalmente a **Tailwind CSS v4**. Diseño premium inspirado en estéticas de alto impacto (Gymshark style).
 
 ---
 
 ## 🚀 Novedades de la Versión 2.0
 
-- **☁️ Cloud Database**: Integración completa con Supabase.
+- **☁️ Cloud Database**: Integración completa con neon.
 - **🎨 Tailwind CSS v4**: Motor de diseño ultra-rápido y minimalista.
 - **🔐 Seguridad Avanzada**: Manejo de variables de entorno (`.env`) y protección de credenciales.
 - **💎 Interfaz Premium**: Sistema de navegación limpia, tipografía de alto impacto y autenticación mediante modales elegantes.
@@ -20,7 +20,7 @@ Este proyecto es una solución integral y moderna para la gestión de una Clíni
 
 - **Python** 3.10+
 - **Node.js** 20+
-- **Cuenta en Supabase** (para la base de datos PostgreSQL)
+- **Cuenta en neon** (para la base de datos PostgreSQL)
 
 ---
 
@@ -29,7 +29,7 @@ Este proyecto es una solución integral y moderna para la gestión de una Clíni
 Es **obligatorio** configurar el archivo `/backend/.env` para que el sistema funcione. Crea el archivo con el siguiente formato:
 
 ```env
-# URL de conexión (Obtenla en Supabase > Settings > Database > URI)
+# URL de conexión (Obtenla en neon > Settings > Database > URI)
 DATABASE_URL=postgresql://postgres:[PASSWORD]@[HOST]:5432/postgres
 
 # Llave secreta para firmar los tokens JWT
@@ -50,7 +50,7 @@ pip install -r requirements.txt
 ```
 
 ### 2. Poblar la Base de Datos (Semilla)
-Ejecuta esto una sola vez para crear las tablas y servicios base en Supabase:
+Ejecuta esto una sola vez para crear las tablas y servicios base en neon:
 ```bash
 python seed.py
 ```
@@ -76,7 +76,7 @@ python start.py
 
 ## ✅ Progreso y TO-DO
 
-- [x] Migración a PostgreSQL (Supabase).
+- [x] Migración a PostgreSQL (neon).
 - [x] Implementación de Variables de Entorno.
 - [x] Rediseño de Interfaz a Estética Premium.
 - [x] Migración Completa a Tailwind CSS v4.
