@@ -8,7 +8,10 @@
 
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, date as date_type, time as time_type
+
+# Importamos los Enums parametrizados desde models
+from models import UserRole, ServiceStatus
 
 # ==================== 1. TOKENS JWT ====================
 # Estructura del Token que se le devuelve al usuario cuando inicia sesión.
@@ -27,9 +30,9 @@ class UserBase(BaseModel):
     email: EmailStr # EmailStr valida automáticamente que sí tenga formato de correo (@ y punto)
     full_name: str
     
-    # Optional significa que estos datos pueden ser nulos si no fueron suministrados.
+    # Tipo date nativo de Python para validación y normalización estricta
     cedula: Optional[str] = None
-    fecha_nacimiento: Optional[str] = None
+    fecha_nacimiento: Optional[date_type] = None
 
 # Cuando un usuario envía el formulario de Registro, tiene que proveer una contraseña.
 class UserCreate(UserBase):
@@ -39,7 +42,7 @@ class UserCreate(UserBase):
 # usamos esta clase que nunca incluye la contraseña (por seguridad) pero sí su ID y Rol.
 class User(UserBase):
     id: int 
-    role: str 
+    role: UserRole # Enum parametrizado
     is_active: bool
 
     # Esta configuración permite a Pydantic leer los datos desde un objeto de SQLAlchemy (DB).
@@ -71,16 +74,36 @@ class AppointmentBase(BaseModel):
     # Nota: No pedimos el ID del paciente aquí, porque ese dato lo obtenemos
     # de forma más segura a través de su Token JWT de sesión activa.
     service_id: int 
-    date: str # Formato de fecha esperado: "2023-11-20"
-    time: str # Formato de hora esperado: "15:00"
+    date: date_type
+    time: time_type# Formato de hora nativo (validará HH:MM o HH:MM:SS)
 
 class AppointmentCreate(AppointmentBase):
     pass
 
-# La información completa de una cita ya consolidada en la base de datos
-class Appointment(AppointmentBase):
+# NOTE: Appointments functionality is now merged into Orders. Keep the
+# appointment schemas for compatibility where the frontend still posts
+# appointment payloads; they will be handled by Order endpoints.
+
+
+# ==================== 5. ÓRDENES (ORDERS) ====================
+# Información base de una orden
+class OrderBase(BaseModel):
+    service_id: int
+    date: Optional[date_type] = None
+    time: Optional[time_type] = None
+    status: ServiceStatus = ServiceStatus.pending
+
+class OrderCreate(OrderBase):
+    pass
+
+# La información completa de la orden en la base de datos
+class Order(OrderBase):
     id: int
-    patient_id: int # El dueño real de la cita
-    status: str # "pending", "confirmed", etc.
+    client_id: int
+    created_at: datetime
+    
+    # También incluimos relaciones para poder detallar la orden
+    service: Service
     
     model_config = {"from_attributes": True}
+
