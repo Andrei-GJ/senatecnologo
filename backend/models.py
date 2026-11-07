@@ -24,6 +24,7 @@ class AppointmentStatus(str, enum.Enum):
 
 class ServiceStatus(str, enum.Enum):
     pending = "pending"
+    confirmed = "confirmed"
     completed = "completed"
     cancelled = "cancelled"
 
@@ -69,7 +70,7 @@ class User(Base):
     is_active = Column(Boolean, default=True)
 
     # Conexión con la tabla de Órdenes. Un paciente puede tener múltiples órdenes.
-    orders = relationship("Order", back_populates="client")
+    orders = relationship("Order", back_populates="client", foreign_keys="Order.client_id")
 
 
 # ----------------- TABLA DE SERVICIOS -----------------
@@ -104,6 +105,7 @@ class Order(Base):
     
     # Enlaza al cliente (usuario) y al servicio
     client_id = Column(Integer, ForeignKey("users.id"))
+    dentist_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     service_id = Column(Integer, ForeignKey("services.id"))
 
     # Fecha y hora de la prestación/turno (antes en appointments)
@@ -114,8 +116,36 @@ class Order(Base):
     status = Column(String, ForeignKey("service_statuses.name"), default="pending")
 
     # Fecha de creación de la orden
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
 
     # Relaciones para navegar fácilmente entre tablas
-    client = relationship("User", back_populates="orders")
+    client = relationship("User", back_populates="orders", foreign_keys=[client_id])
     service = relationship("Service", back_populates="orders")
+    dentist = relationship("User", foreign_keys=[dentist_id])
+
+
+# ----------------- TABLA DE ARTÍCULOS DE BLOG -----------------
+class BlogPost(Base):
+    __tablename__ = "blog_posts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, index=True)
+    excerpt = Column(String)
+    content = Column(String)
+    author = Column(String, default="Equipo Dental Blanc")
+    date = Column(String)
+    is_active = Column(Boolean, default=True)
+
+
+# ----------------- TABLA DE INFORMACIÓN INSTITUCIONAL (NOSOTROS) -----------------
+class ClinicInfo(Base):
+    __tablename__ = "clinic_info"
+
+    id = Column(Integer, primary_key=True)
+    mision = Column(String)
+    vision = Column(String)
+    valores = Column(String)
+    telefono = Column(String, default="+57 (601) 745-0000")
+    direccion = Column(String, default="Calle 127 # 19A - 44, Consultorio 502, Bogotá D.C.")
+    email_contacto = Column(String, default="contacto@dentalblanc.com")
+

@@ -48,7 +48,7 @@ def setup_database():
         if not db.query(models.Role).filter_by(name=role_name).first():
             db.add(models.Role(name=role_name))
 
-    statuses = ["pending", "completed", "cancelled"]
+    statuses = ["pending", "confirmed", "completed", "cancelled"]
     for status_name in statuses:
         if not db.query(models.ServiceStatusModel).filter_by(name=status_name).first():
             db.add(models.ServiceStatusModel(name=status_name))
