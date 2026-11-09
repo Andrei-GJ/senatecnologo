@@ -24,27 +24,31 @@ export function TarjetasServicios({ cargando, servicios }) {
       ) : (
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {servicios.map((servicio) => (
-            <div key={servicio.id} className="group relative bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-sky-100/50 transition-all duration-300 hover:-translate-y-2">
+            <div key={servicio.id} className="group relative bg-white p-7 rounded-2xl border-2 border-slate-300 shadow-md hover:shadow-lg hover:border-sky-500 transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between">
               
-              {/* Icono Representativo */}
-              <div className="mb-6 h-14 w-14 flex items-center justify-center rounded-2xl bg-sky-50 text-sky-500 group-hover:bg-sky-500 group-hover:text-white transition-colors">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 2L12 12"/><path d="M12 22L12 12"/><path d="M22 12L12 12"/><path d="M2 12L12 12"/><path d="M19.07 4.93L12 12"/><path d="M4.93 19.07L12 12"/><path d="M19.07 19.07L12 12"/><path d="M4.93 4.93L12 12"/>
-                </svg>
+              <div>
+                {/* Icono Representativo */}
+                <div className="mb-5 h-12 w-12 flex items-center justify-center rounded-xl bg-sky-50 text-sky-700 border border-sky-200 group-hover:bg-sky-600 group-hover:text-white transition-colors">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M7 12c.5-2 1.5-3 2.5-3s2 1 2.5 3c.5 2 1.5 3 2.5 3s2-1 2.5-3c.5-2 1.5-3 2.5-3s2 1 2.5 3" />
+                    <path d="M12 3c-5 0-8 6-8 12 0 4.4 3.6 6 8 6s8-1.6 8-6c0-6-3-12-8-12z" />
+                  </svg>
+                </div>
+
+                {/* Info del Servicio */}
+                <div className="space-y-2.5">
+                  <h3 className="text-base font-bold text-slate-900 leading-snug">{servicio.name}</h3>
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed line-clamp-3">
+                    {servicio.description}
+                  </p>
+                </div>
               </div>
 
-              {/* Info del Servicio */}
-              <div className="space-y-3">
-                <h3 className="text-lg font-bold text-slate-900 leading-tight">{servicio.name}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed line-clamp-3">
-                  {servicio.description}
-                </p>
-                <div className="pt-4 flex items-center justify-between border-t border-slate-50">
-                  <span className="text-xs font-bold text-slate-300 uppercase tracking-widest">Desde</span>
-                  <span className="text-xl font-extrabold text-sky-600">
-                    {formatearPrecio(servicio.price)}
-                  </span>
-                </div>
+              <div className="pt-4 mt-4 flex items-center justify-between border-t border-slate-200">
+                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Desde</span>
+                <span className="text-lg font-black text-sky-700">
+                  {formatearPrecio(servicio.price)}
+                </span>
               </div>
             </div>
           ))}
