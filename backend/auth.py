@@ -6,7 +6,7 @@
 # 2. Crear los "Tokens JWT" (Identificaciones digitales) para los usuarios.
 
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from jose import JWTError, jwt
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -40,9 +40,9 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     
     # Calculamos la fecha y hora exacta en que este token dejará de funcionar
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=15) # Por defecto dura 15 minutos
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15) # Por defecto dura 15 minutos
         
     # Agregamos la fecha de expiración ('exp') a los datos
     to_encode.update({"exp": expire})
