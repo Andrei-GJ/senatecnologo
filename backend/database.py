@@ -23,6 +23,15 @@ if not SQLALCHEMY_DATABASE_URL:
         "Por favor, agrega tu connection string de neon al archivo .env"
     )
 
+# Normalizar esquema de conexión:
+# 1. Neon por defecto genera 'postgresql+psycopg://' para SQLAlchemy (driver psycopg 3).
+#    Como el proyecto utiliza psycopg2-binary, normalizamos a 'postgresql+psycopg2://'.
+# 2. Compatibilidad con sintaxis legacy 'postgres://' que falla en SQLAlchemy >= 1.4.
+if SQLALCHEMY_DATABASE_URL.startswith("postgresql+psycopg://"):
+    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgresql+psycopg://", "postgresql+psycopg2://", 1)
+elif SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 # Creación del motor de conexión PostgreSQL (neon)
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, 
